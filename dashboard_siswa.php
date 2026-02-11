@@ -984,6 +984,419 @@ if ($siswa && isset($siswa['ID'])) {
                 right: -20px;
             }
         }
+
+        :root {
+            --bg-gradient: linear-gradient(135deg, #1e40af 0%, #2563eb 55%, #3b82f6 100%);
+            --surface: rgba(255, 255, 255, 0.94);
+            --surface-soft: rgba(255, 255, 255, 0.9);
+            --surface-card: rgba(255, 255, 255, 0.95);
+            --text-main: #2d3748;
+            --text-muted: #718096;
+            --accent: #2563eb;
+            --border-soft: rgba(37, 99, 235, 0.18);
+            --shadow-soft: 0 12px 28px rgba(16, 24, 40, 0.12);
+        }
+
+        body {
+            background: var(--bg-gradient);
+            color: var(--text-main);
+            transition: background 0.35s ease, color 0.35s ease;
+        }
+
+        body.dark-mode {
+            --bg-gradient: linear-gradient(135deg, #0f172a 0%, #111827 45%, #1f2937 100%);
+            --surface: rgba(17, 24, 39, 0.92);
+            --surface-soft: rgba(17, 24, 39, 0.88);
+            --surface-card: rgba(17, 24, 39, 0.9);
+            --text-main: #e5e7eb;
+            --text-muted: #9ca3af;
+            --accent: #60a5fa;
+            --border-soft: rgba(96, 165, 250, 0.26);
+            --shadow-soft: 0 12px 28px rgba(2, 6, 23, 0.5);
+        }
+
+        body.sidebar-open {
+            overflow: hidden;
+        }
+
+        .brand-left {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .header {
+            margin-left: 270px;
+            background: var(--surface);
+            border-bottom-color: var(--accent);
+            box-shadow: var(--shadow-soft);
+            transition: margin-left 0.3s ease, background 0.3s ease;
+        }
+
+        .header h1 {
+            background: linear-gradient(135deg, var(--accent), #1d4ed8);
+            -webkit-background-clip: text;
+            background-clip: text;
+        }
+
+        .sidebar-toggle,
+        .theme-toggle {
+            border: 1px solid var(--border-soft);
+            background: rgba(255, 255, 255, 0.4);
+            color: var(--text-main);
+            border-radius: 12px;
+            height: 42px;
+            padding: 0 14px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            font-weight: 600;
+        }
+
+        body.dark-mode .sidebar-toggle,
+        body.dark-mode .theme-toggle {
+            background: rgba(31, 41, 55, 0.85);
+        }
+
+        .sidebar-toggle:hover,
+        .theme-toggle:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        .theme-toggle:hover {
+            transform: translateY(-1px);
+        }
+
+        .sidebar-toggle {
+            display: none;
+            font-size: 22px;
+            padding: 0 12px;
+            min-width: 46px;
+            min-height: 46px;
+            touch-action: manipulation;
+            position: relative;
+            z-index: 1405;
+        }
+
+        .theme-toggle i {
+            font-size: 18px;
+        }
+
+        .nav {
+            position: fixed;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 270px;
+            background: var(--surface-soft);
+            border-right: 1px solid var(--border-soft);
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            padding: 16px 18px 18px;
+            overflow-y: auto;
+            overflow-x: hidden;
+            z-index: 1300;
+            backdrop-filter: blur(18px);
+            transition: transform 0.3s ease, background 0.3s ease;
+        }
+
+        .sidebar-top {
+            margin-bottom: 14px;
+            padding: 12px;
+            border-radius: 14px;
+            background: linear-gradient(135deg, rgba(37, 99, 235, 0.2), rgba(59, 130, 246, 0.18));
+            border: 1px solid var(--border-soft);
+        }
+
+        .sidebar-top h4 {
+            font-size: 13px;
+            font-weight: 700;
+            letter-spacing: 0.4px;
+            margin-bottom: 10px;
+            color: var(--text-main);
+            text-transform: uppercase;
+        }
+
+        .sidebar-icons {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+        }
+
+        .sidebar-icon {
+            height: 36px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid rgba(255, 255, 255, 0.35);
+            background: rgba(255, 255, 255, 0.45);
+            color: var(--text-main);
+            font-size: 18px;
+        }
+
+        body.dark-mode .sidebar-icon {
+            background: rgba(31, 41, 55, 0.72);
+            border-color: rgba(129, 140, 248, 0.35);
+        }
+
+        .nav a {
+            color: var(--text-muted);
+            width: 100%;
+            border: 1px solid transparent;
+            justify-content: flex-start;
+        }
+
+        .nav a:hover {
+            color: var(--accent);
+            border-color: var(--border-soft);
+            transform: translateX(4px);
+        }
+
+        .nav a:active,
+        .nav a.tap-active {
+            color: var(--accent);
+            border-color: var(--border-soft);
+            transform: translateX(4px) scale(0.98);
+            background: linear-gradient(135deg, rgba(37, 99, 235, 0.14), rgba(59, 130, 246, 0.14));
+        }
+
+        .nav a::before {
+            background: linear-gradient(135deg, rgba(37, 99, 235, 0.12), rgba(59, 130, 246, 0.12));
+        }
+
+        .container {
+            margin-left: 270px;
+            max-width: none;
+            transition: margin-left 0.3s ease;
+        }
+
+        .welcome,
+        .quick-actions,
+        .notifikasi-dropdown {
+            background: var(--surface-card);
+            border-color: var(--border-soft);
+        }
+
+        .stat-card {
+            background: rgba(255, 253, 208, 0.95);
+        }
+
+        body.dark-mode .stat-card {
+            background: rgba(30, 41, 59, 0.92);
+            border-color: var(--border-soft);
+            box-shadow: 0 15px 35px rgba(2, 6, 23, 0.45);
+        }
+
+        .welcome-text h2,
+        .quick-actions h3,
+        .user-details .username,
+        .notifikasi-judul {
+            color: var(--text-main);
+        }
+
+        .welcome-text p,
+        .welcome-details,
+        .stat-card p,
+        .notifikasi-pesan,
+        .notifikasi-waktu {
+            color: var(--text-muted);
+        }
+
+        .notif-highlight {
+            color: #1e3a8a;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 10px;
+            border-radius: 10px;
+            background: rgba(37, 99, 235, 0.12);
+            border: 1px solid rgba(37, 99, 235, 0.2);
+            position: relative;
+            z-index: 2;
+        }
+
+        body.dark-mode .notif-highlight {
+            color: #dbeafe;
+            background: rgba(96, 165, 250, 0.2);
+            border-color: rgba(147, 197, 253, 0.45);
+            text-shadow: 0 1px 2px rgba(2, 6, 23, 0.55);
+        }
+
+        body.dark-mode .notifikasi-item {
+            border-bottom-color: rgba(129, 140, 248, 0.2);
+        }
+
+        body.dark-mode .notifikasi-item:hover {
+            background: rgba(79, 70, 229, 0.14);
+        }
+
+        .sidebar-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.45);
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.25s ease, visibility 0.25s ease;
+            z-index: 1200;
+        }
+
+        .sidebar-overlay.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .action-btn {
+            background: linear-gradient(135deg, #2563eb, #3b82f6);
+        }
+
+        .action-btn:hover {
+            background: linear-gradient(135deg, #1d4ed8, #2563eb);
+        }
+
+        .notifikasi-header {
+            background: linear-gradient(135deg, #1d4ed8, #3b82f6);
+        }
+
+        .stat-card::before {
+            background: linear-gradient(90deg, #2563eb, #3b82f6);
+        }
+
+        @media (max-width: 1024px) {
+            .header {
+                margin-left: 0;
+                padding: 12px 14px;
+                display: block;
+            }
+
+            .container {
+                margin-left: 0;
+                padding: 20px;
+            }
+
+            .brand-left {
+                width: 100%;
+                justify-content: space-between;
+                margin-bottom: 10px;
+                position: relative;
+                z-index: 1405;
+            }
+
+            .sidebar-toggle {
+                display: inline-flex;
+            }
+
+            .nav {
+                transform: translateX(-105%);
+                width: 280px;
+                padding-top: 16px;
+                box-shadow: 0 10px 30px rgba(2, 6, 23, 0.35);
+            }
+
+            .nav.open {
+                transform: translateX(0);
+            }
+
+            .user-info {
+                flex-direction: row;
+                align-items: center;
+                gap: 10px;
+                flex-wrap: nowrap;
+                justify-content: flex-end;
+                width: 100%;
+            }
+
+            .theme-toggle span {
+                display: none;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .header {
+                padding: 12px;
+            }
+
+            .brand-left {
+                justify-content: center;
+                margin-bottom: 8px;
+            }
+
+            .brand-left a {
+                margin: 0 auto;
+                text-align: center;
+            }
+
+            .sidebar-toggle {
+                position: absolute;
+                left: 0;
+                top: 100%;
+                transform: translateY(-50%);
+            }
+
+            .header h1 {
+                font-size: 18px;
+                margin: 0;
+                text-align: center;
+            }
+
+            .user-info {
+                gap: 8px;
+                justify-content: center;
+                flex-wrap: wrap;
+                margin-top: 2px;
+            }
+
+            .user-profile {
+                flex-direction: row;
+                gap: 8px;
+            }
+
+            .user-details {
+                display: none;
+            }
+
+            .profile-avatar {
+                width: 38px;
+                height: 38px;
+            }
+
+            .logout-btn {
+                padding: 9px 12px;
+                border-radius: 9px;
+                font-size: 13px;
+            }
+
+            .notifikasi-dropdown {
+                width: min(96vw, 380px);
+                right: 0;
+            }
+
+            .notifikasi-container {
+                margin-right: 0;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .theme-toggle {
+                height: 36px;
+                padding: 0 9px;
+            }
+
+            .logout-btn {
+                padding: 8px 10px;
+            }
+
+            .brand-left a h1 {
+                font-size: 16px;
+                text-align: center;
+            }
+        }
     </style>
 </head>
 <body>
@@ -995,10 +1408,19 @@ if ($siswa && isset($siswa['ID'])) {
     <div class="floating"></div>
     
     <div class="header">
-        <a href="halaman utama.php" style="text-decoration: none; color: inherit;">
-            <h1> 🎓 APK BK - Dashboard Siswa </h1>
-        </a>
+        <div class="brand-left">
+            <button class="sidebar-toggle" id="sidebarToggle" type="button" aria-label="Buka menu">
+                <i class='bx bx-menu'></i>
+            </button>
+            <a href="halaman utama.php" style="text-decoration: none; color: inherit;">
+                <h1> 🎓 APK BK - Dashboard Siswa </h1>
+            </a>
+        </div>
         <div class="user-info">
+            <button class="theme-toggle" id="themeToggle" type="button" aria-label="Ganti mode tema">
+                <i class='bx bx-moon'></i>
+                <span>Mode</span>
+            </button>
             <div class="notifikasi-container">
                 <button class="notifikasi-btn" id="notifikasiBtn">
                     <i class='bx bx-bell'></i>
@@ -1074,6 +1496,15 @@ if ($siswa && isset($siswa['ID'])) {
     </div>
     
     <div class="nav">
+        <div class="sidebar-top">
+            <h4>Menu Siswa</h4>
+            <div class="sidebar-icons">
+                <span class="sidebar-icon"><i class='bx bx-home-heart'></i></span>
+                <span class="sidebar-icon"><i class='bx bx-book-open'></i></span>
+                <span class="sidebar-icon"><i class='bx bx-brain'></i></span>
+                <span class="sidebar-icon"><i class='bx bx-calendar-star'></i></span>
+            </div>
+        </div>
         <a href="dashboard_siswa.php">
             <i class='bx bx-home'></i>
             Dashboard
@@ -1111,6 +1542,7 @@ if ($siswa && isset($siswa['ID'])) {
             Profil 
         </a>
     </div>
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
     
     <div class="container">
         <div class="welcome">
@@ -1135,7 +1567,7 @@ if ($siswa && isset($siswa['ID'])) {
             <div class="welcome-details">
                 <p><i class='bx bx-info-circle'></i> Gunakan menu di atas untuk mengakses fitur lengkap aplikasi BK.</p>
                 <?php if ($jumlah_notif_belum_dibaca > 0): ?>
-                    <p style="color: #667eea; font-weight: 600;">
+                    <p class="notif-highlight">
                         <i class='bx bx-bell'></i> Anda memiliki <?php echo $jumlah_notif_belum_dibaca; ?> notifikasi baru!
                     </p>
                 <?php endif; ?>
@@ -1184,7 +1616,88 @@ if ($siswa && isset($siswa['ID'])) {
     document.addEventListener('DOMContentLoaded', function() {
         const notifBtn = document.getElementById('notifikasiBtn');
         const notifDropdown = document.getElementById('notifikasiDropdown');
+        const sidebar = document.querySelector('.nav');
+        const sidebarToggle = document.getElementById('sidebarToggle');
+        const sidebarOverlay = document.getElementById('sidebarOverlay');
+        const themeToggle = document.getElementById('themeToggle');
         let notifOpen = false;
+
+        function closeSidebar() {
+            if (sidebar && sidebarOverlay) {
+                sidebar.classList.remove('open');
+                sidebarOverlay.classList.remove('show');
+                document.body.classList.remove('sidebar-open');
+            }
+        }
+
+        function toggleSidebar() {
+            if (sidebar && sidebarOverlay) {
+                sidebar.classList.toggle('open');
+                sidebarOverlay.classList.toggle('show');
+                document.body.classList.toggle('sidebar-open');
+            }
+        }
+
+        const savedTheme = localStorage.getItem('dashboard_theme');
+        if (savedTheme === 'dark') {
+            document.body.classList.add('dark-mode');
+            if (themeToggle) {
+                themeToggle.innerHTML = "<i class='bx bx-sun'></i><span>Mode</span>";
+            }
+        }
+
+        if (themeToggle) {
+            themeToggle.addEventListener('click', function() {
+                const isDark = document.body.classList.toggle('dark-mode');
+                localStorage.setItem('dashboard_theme', isDark ? 'dark' : 'light');
+                this.innerHTML = isDark
+                    ? "<i class='bx bx-sun'></i><span>Mode</span>"
+                    : "<i class='bx bx-moon'></i><span>Mode</span>";
+            });
+        }
+
+        if (sidebarToggle) {
+            let lastSidebarToggle = 0;
+            const handleSidebarToggle = function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                const now = Date.now();
+                if (now - lastSidebarToggle < 250) {
+                    return;
+                }
+                lastSidebarToggle = now;
+                toggleSidebar();
+            };
+
+            sidebarToggle.addEventListener('click', handleSidebarToggle);
+            sidebarToggle.addEventListener('touchend', handleSidebarToggle, { passive: false });
+        }
+
+        if (sidebarOverlay) {
+            sidebarOverlay.addEventListener('click', closeSidebar);
+        }
+
+        document.querySelectorAll('.nav a').forEach(link => {
+            link.addEventListener('touchstart', function() {
+                this.classList.add('tap-active');
+            }, { passive: true });
+
+            link.addEventListener('touchend', function() {
+                setTimeout(() => {
+                    this.classList.remove('tap-active');
+                }, 140);
+            }, { passive: true });
+
+            link.addEventListener('touchcancel', function() {
+                this.classList.remove('tap-active');
+            }, { passive: true });
+
+            link.addEventListener('click', function() {
+                if (window.innerWidth <= 1024) {
+                    closeSidebar();
+                }
+            });
+        });
         
         function closeNotifDropdown() {
             notifDropdown.classList.remove('show');
@@ -1239,6 +1752,9 @@ if ($siswa && isset($siswa['ID'])) {
         window.addEventListener('resize', function() {
             if (notifOpen) {
                 closeNotifDropdown();
+            }
+            if (window.innerWidth > 1024) {
+                closeSidebar();
             }
         });
         
@@ -1374,6 +1890,7 @@ if ($siswa && isset($siswa['ID'])) {
             top: 20px;
             right: 20px;
             background: white;
+            color: #1f2937;
             padding: 15px 20px;
             border-radius: 12px;
             box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
@@ -1384,6 +1901,13 @@ if ($siswa && isset($siswa['ID'])) {
             transition: transform 0.3s ease;
             z-index: 10000;
             border-left: 4px solid #667eea;
+        }
+
+        body.dark-mode .toast {
+            background: rgba(15, 23, 42, 0.96);
+            color: #e5e7eb;
+            border-left-color: #60a5fa;
+            box-shadow: 0 10px 30px rgba(2, 6, 23, 0.55);
         }
         
         .toast.show {
