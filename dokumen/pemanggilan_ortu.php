@@ -26,6 +26,31 @@ if ($stmt_guru) {
     $stmt_guru->close();
 }
 
+$jumlah_notif_konsultasi = 0;
+$sql_guru_id = "SELECT ID FROM guru_bk WHERE USER_ID = ?";
+$stmt_guru_id = $koneksi->prepare($sql_guru_id);
+if ($stmt_guru_id) {
+    $stmt_guru_id->bind_param("i", $user_id);
+    $stmt_guru_id->execute();
+    $guru_id_data = $stmt_guru_id->get_result()->fetch_assoc();
+    $stmt_guru_id->close();
+
+    if ($guru_id_data && isset($guru_id_data['ID'])) {
+        $guru_id = (int) $guru_id_data['ID'];
+        $sql_menunggu = "SELECT COUNT(*) as jumlah FROM konsultasi
+                        WHERE STATUS = 'Menunggu'
+                        AND (PILIHAN_GURU_1 = ? OR PILIHAN_GURU_2 = ?)";
+        $stmt_menunggu = $koneksi->prepare($sql_menunggu);
+        if ($stmt_menunggu) {
+            $stmt_menunggu->bind_param("ii", $guru_id, $guru_id);
+            $stmt_menunggu->execute();
+            $result_menunggu = $stmt_menunggu->get_result()->fetch_assoc();
+            $jumlah_notif_konsultasi = $result_menunggu['jumlah'] ?? 0;
+            $stmt_menunggu->close();
+        }
+    }
+}
+
 $bulan_romawi = [
     '1' => 'I', '2' => 'II', '3' => 'III', '4' => 'IV', '5' => 'V',
     '6' => 'VI', '7' => 'VII', '8' => 'VIII', '9' => 'IX', '10' => 'X',
@@ -766,10 +791,112 @@ $data_default = [
             border-color: #3182ce;
         }
     }
+
+    /* Layout Theme: match approve_konsultasi.php */
+    :root { --bg-gradient: linear-gradient(135deg, #1e40af 0%, #2563eb 55%, #3b82f6 100%); --surface: rgba(255, 255, 255, 0.94); --surface-soft: rgba(255, 255, 255, 0.9); --surface-card: rgba(255, 255, 255, 0.95); --text-main: #2d3748; --text-muted: #718096; --accent: #2563eb; --border-soft: rgba(37, 99, 235, 0.18); --shadow-soft: 0 12px 28px rgba(16, 24, 40, 0.12); }
+    body { background: var(--bg-gradient); color: var(--text-main); transition: background 0.35s ease, color 0.35s ease; padding: 0; }
+    body.dark-mode { --bg-gradient: linear-gradient(135deg, #0f172a 0%, #111827 45%, #1f2937 100%); --surface: rgba(17, 24, 39, 0.92); --surface-soft: rgba(17, 24, 39, 0.88); --surface-card: rgba(17, 24, 39, 0.9); --text-main: #e5e7eb; --text-muted: #9ca3af; --accent: #60a5fa; --border-soft: rgba(96, 165, 250, 0.26); --shadow-soft: 0 12px 28px rgba(2, 6, 23, 0.5); }
+    body.sidebar-open { overflow: hidden; }
+    .header { margin-left: 270px; background: var(--surface); border-bottom: 3px solid var(--accent); box-shadow: var(--shadow-soft); overflow: visible; z-index: 1000; transition: margin-left 0.3s ease, background 0.3s ease; padding: 20px 40px; display: flex; justify-content: space-between; align-items: center; position: relative; }
+    .brand-left { display: flex; align-items: center; gap: 14px; }
+    .brand-left > a { text-decoration: none; color: inherit; }
+    .header h1 { font-size: 28px; font-weight: 700; letter-spacing: 0.5px; background: linear-gradient(135deg, var(--accent), #1d4ed8); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; display: flex; align-items: center; gap: 10px; margin: 0; }
+    .user-info { display: flex; align-items: center; gap: 12px; }
+    .sidebar-toggle, .theme-toggle { border: 1px solid var(--border-soft); background: rgba(255, 255, 255, 0.4); color: var(--text-main); border-radius: 12px; height: 42px; padding: 0 14px; display: inline-flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer; transition: all 0.25s ease; font-weight: 600; text-decoration: none; }
+    body.dark-mode .sidebar-toggle, body.dark-mode .theme-toggle { background: rgba(31, 41, 55, 0.85); }
+    .sidebar-toggle:hover, .theme-toggle:hover { border-color: var(--accent); color: var(--accent); }
+    .theme-toggle:hover { transform: translateY(-1px); }
+    .sidebar-toggle { display: none; font-size: 22px; padding: 0 12px; min-width: 46px; min-height: 46px; touch-action: manipulation; position: relative; z-index: 1405; }
+    .theme-toggle i { font-size: 18px; }
+    .nav { position: fixed; left: 0; top: 0; bottom: 0; width: 270px; background: var(--surface-soft); border-right: 1px solid var(--border-soft); display: flex; flex-direction: column; gap: 10px; padding: 16px 18px 18px; overflow-y: auto; overflow-x: hidden; z-index: 1300; backdrop-filter: blur(18px); transition: transform 0.3s ease, background 0.3s ease; }
+    .sidebar-top { margin-bottom: 14px; padding: 12px; border-radius: 14px; background: linear-gradient(135deg, rgba(37, 99, 235, 0.2), rgba(59, 130, 246, 0.18)); border: 1px solid var(--border-soft); }
+    .sidebar-top h4 { font-size: 13px; font-weight: 700; letter-spacing: 0.4px; margin-bottom: 10px; color: var(--text-main); text-transform: uppercase; }
+    .sidebar-icons { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+    .sidebar-icon { height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center; border: 1px solid rgba(255, 255, 255, 0.35); background: rgba(255, 255, 255, 0.45); color: var(--text-main); font-size: 18px; }
+    .nav a { color: var(--text-muted); width: 100%; border: 1px solid transparent; padding: 14px 22px; border-radius: 12px; font-weight: 600; font-size: 14px; transition: all 0.3s ease; white-space: nowrap; position: relative; overflow: hidden; display: flex; align-items: center; gap: 8px; justify-content: flex-start; text-decoration: none; }
+    .nav a::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(135deg, rgba(37, 99, 235, 0.12), rgba(59, 130, 246, 0.12)); transform: scaleX(0); transform-origin: left; transition: transform 0.3s ease; z-index: -1; }
+    .nav a:hover { color: var(--accent); border-color: var(--border-soft); transform: translateX(4px); }
+    .nav a:hover::before { transform: scaleX(1); }
+    .nav a.active, .nav a.tap-active { color: var(--accent); border-color: var(--border-soft); transform: translateX(4px) scale(0.98); background: linear-gradient(135deg, rgba(37, 99, 235, 0.14), rgba(59, 130, 246, 0.14)); }
+    .nav-badge { position: relative; }
+    .badge { position: absolute; top: 2px; right: 2px; background: linear-gradient(135deg, #ff6b6b, #ee5a52); color: white; border-radius: 50%; width: 18px; height: 18px; font-size: 10px; font-weight: bold; display: flex; align-items: center; justify-content: center; animation: pulse 2s infinite; box-shadow: 0 2px 8px rgba(255, 107, 107, 0.4); border: 2px solid white; }
+    .container { margin-left: 270px; max-width: none; transition: margin-left 0.3s ease; padding: 24px; }
+    .dashboard { background: var(--surface-card); border-color: var(--border-soft); }
+    .form-section { background: transparent; }
+    .sidebar-overlay { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.45); opacity: 0; visibility: hidden; transition: opacity 0.25s ease, visibility 0.25s ease; z-index: 1200; }
+    .sidebar-overlay.show { opacity: 1; visibility: visible; }
+    @media (max-width: 1024px) { .header { margin-left: 0; padding: 12px 14px; display: block; } .container { margin-left: 0; padding: 20px; } .brand-left { width: 100%; justify-content: space-between; margin-bottom: 10px; position: relative; z-index: 1405; } .sidebar-toggle { display: inline-flex; } .nav { transform: translateX(-105%); width: 280px; padding-top: 16px; box-shadow: 0 10px 30px rgba(2, 6, 23, 0.35); } .nav.open { transform: translateX(0); } .user-info { flex-direction: row; align-items: center; gap: 10px; flex-wrap: nowrap; justify-content: flex-end; width: 100%; } .theme-toggle span { display: none; } }
+    @media (max-width: 768px) { .header { padding: 12px; } .brand-left { justify-content: center; margin-bottom: 8px; } .brand-left a { margin: 0 auto; text-align: center; } .sidebar-toggle { position: absolute; left: 0; top: 100%; transform: translateY(-50%); } .header h1 { font-size: 18px; margin: 0; text-align: center; } .user-info { gap: 8px; justify-content: center; flex-wrap: wrap; margin-top: 2px; } }
+    @media (max-width: 480px) { .theme-toggle { height: 36px; padding: 0 9px; } .brand-left a h1 { font-size: 16px; text-align: center; } }
 </style>
 </head>
 <body>
-    
+    <div class="header">
+        <div class="brand-left">
+            <button class="sidebar-toggle" id="sidebarToggle" type="button" aria-label="Buka menu">
+                <i class='bx bx-menu'></i>
+            </button>
+            <a href="../halaman utama.php">
+                <h1><i class='bx bx-file'></i> Dokumen Orang Tua</h1>
+            </a>
+        </div>
+        <div class="user-info">
+            <button class="theme-toggle" id="themeToggle" type="button" aria-label="Ganti mode tema">
+                <i class='bx bx-moon'></i>
+                <span>Mode</span>
+            </button>
+            <a href="../logout.php" class="theme-toggle" aria-label="Logout akun">
+                <i class='bx bx-log-out'></i>
+                <span>Logout</span>
+            </a>
+        </div>
+    </div>
+
+    <div class="nav">
+        <div class="sidebar-top">
+            <h4>Menu Guru BK</h4>
+            <div class="sidebar-icons">
+                <span class="sidebar-icon"><i class='bx bx-home-heart'></i></span>
+                <span class="sidebar-icon"><i class='bx bx-check-shield'></i></span>
+                <span class="sidebar-icon"><i class='bx bx-calendar-star'></i></span>
+                <span class="sidebar-icon"><i class='bx bx-clipboard'></i></span>
+            </div>
+        </div>
+        <a href="../dashboard_guru.php">
+            <i class='bx bx-home'></i>
+            Dashboard
+        </a>
+        <a href="../approve_konsultasi.php" class="nav-badge">
+            <i class='bx bx-check-shield'></i>
+            Approve Konsultasi
+            <?php if ($jumlah_notif_konsultasi > 0): ?>
+                <span class="badge"><?php echo $jumlah_notif_konsultasi; ?></span>
+            <?php endif; ?>
+        </a>
+        <a href="../sesi_konsultasi.php">
+            <i class='bx bx-conversation'></i>
+            Sesi Konsultasi
+        </a>
+        <a href="../kelola_jadwal.php">
+            <i class='bx bx-calendar'></i>
+            Kelola Jadwal
+        </a>
+        <a href="../review_form.php">
+            <i class='bx bx-clipboard'></i>
+            Review Form
+        </a>
+        <a href="pemanggilan_ortu.php" class="active">
+            <i class='bx bx-file'></i>
+            Dokumen
+        </a>
+        <a href="../profil.php">
+            <i class='bx bx-face'></i>
+            Profil
+        </a>
+    </div>
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <div class="container">
     <div class="dashboard">
         <div class="header-section">
             <h1>
@@ -855,8 +982,7 @@ $data_default = [
             </div>
         </div>
     </div>
-    
-    
+
     <div class="letter-container" id="letterContainer">
         
         <div class="letter-header">
@@ -933,6 +1059,7 @@ $data_default = [
             <p>Surat ini dicetak dari Sistem Bimbingan Konseling <?php echo $sekolah; ?></p>
             <p id="printDate">Tanggal cetak: <?php echo date('d/m/Y H:i:s'); ?></p>
         </div>
+    </div>
     </div>
 
     <script>
@@ -1042,6 +1169,94 @@ $data_default = [
         });
         
         document.addEventListener('DOMContentLoaded', function() {
+            const sidebar = document.querySelector('.nav');
+            const sidebarToggle = document.getElementById('sidebarToggle');
+            const sidebarOverlay = document.getElementById('sidebarOverlay');
+            const themeToggle = document.getElementById('themeToggle');
+
+            function closeSidebar() {
+                if (sidebar && sidebarOverlay) {
+                    sidebar.classList.remove('open');
+                    sidebarOverlay.classList.remove('show');
+                    document.body.classList.remove('sidebar-open');
+                }
+            }
+
+            function toggleSidebar() {
+                if (sidebar && sidebarOverlay) {
+                    sidebar.classList.toggle('open');
+                    sidebarOverlay.classList.toggle('show');
+                    document.body.classList.toggle('sidebar-open');
+                }
+            }
+
+            const savedTheme = localStorage.getItem('dashboard_theme');
+            if (savedTheme === 'dark') {
+                document.body.classList.add('dark-mode');
+                if (themeToggle) {
+                    themeToggle.innerHTML = "<i class='bx bx-sun'></i><span>Mode</span>";
+                }
+            }
+
+            if (themeToggle) {
+                themeToggle.addEventListener('click', function() {
+                    const isDark = document.body.classList.toggle('dark-mode');
+                    localStorage.setItem('dashboard_theme', isDark ? 'dark' : 'light');
+                    this.innerHTML = isDark
+                        ? "<i class='bx bx-sun'></i><span>Mode</span>"
+                        : "<i class='bx bx-moon'></i><span>Mode</span>";
+                });
+            }
+
+            if (sidebarToggle) {
+                let lastSidebarToggle = 0;
+                const handleSidebarToggle = function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    const now = Date.now();
+                    if (now - lastSidebarToggle < 250) {
+                        return;
+                    }
+                    lastSidebarToggle = now;
+                    toggleSidebar();
+                };
+
+                sidebarToggle.addEventListener('click', handleSidebarToggle);
+                sidebarToggle.addEventListener('touchend', handleSidebarToggle, { passive: false });
+            }
+
+            if (sidebarOverlay) {
+                sidebarOverlay.addEventListener('click', closeSidebar);
+            }
+
+            document.querySelectorAll('.nav a').forEach(link => {
+                link.addEventListener('touchstart', function() {
+                    this.classList.add('tap-active');
+                }, { passive: true });
+
+                link.addEventListener('touchend', function() {
+                    setTimeout(() => {
+                        this.classList.remove('tap-active');
+                    }, 140);
+                }, { passive: true });
+
+                link.addEventListener('touchcancel', function() {
+                    this.classList.remove('tap-active');
+                }, { passive: true });
+
+                link.addEventListener('click', function() {
+                    if (window.innerWidth <= 1024) {
+                        closeSidebar();
+                    }
+                });
+            });
+
+            window.addEventListener('resize', function() {
+                if (window.innerWidth > 1024) {
+                    closeSidebar();
+                }
+            });
+
             updatePreview();
         });
     </script>

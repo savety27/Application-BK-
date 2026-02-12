@@ -39,6 +39,22 @@ if ($role == 'Siswa') {
     $additional_data = $result_guru->fetch_assoc();
 }
 
+$jumlah_notif_konsultasi = 0;
+if ($role == 'Guru_BK' && $additional_data && isset($additional_data['ID'])) {
+    $guru_id = (int) $additional_data['ID'];
+    $sql_menunggu = "SELECT COUNT(*) as jumlah FROM konsultasi
+                    WHERE STATUS = 'Menunggu'
+                    AND (PILIHAN_GURU_1 = ? OR PILIHAN_GURU_2 = ?)";
+    $stmt_menunggu = $koneksi->prepare($sql_menunggu);
+    if ($stmt_menunggu) {
+        $stmt_menunggu->bind_param("ii", $guru_id, $guru_id);
+        $stmt_menunggu->execute();
+        $result_menunggu = $stmt_menunggu->get_result()->fetch_assoc();
+        $jumlah_notif_konsultasi = $result_menunggu['jumlah'] ?? 0;
+        $stmt_menunggu->close();
+    }
+}
+
 $default_photo = 'https://ui-avatars.com/api/?name=' . urlencode($nama_lengkap) . '&background=' . ($role == 'Admin' ? '8b5cf6' : ($role == 'Guru_BK' ? '3182ce' : '667eea')) . '&color=fff&size=150';
 
 $has_photo = false;
@@ -247,8 +263,6 @@ $page_title = "Profile " . ($role == 'Guru_BK' ? 'Guru BK' : $role);
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Profile - APK BK</title>
     <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
-        rel="stylesheet">
     <style>
         :root {
             --bg-gradient: linear-gradient(135deg, #1e40af 0%, #2563eb 55%, #3b82f6 100%);
@@ -274,21 +288,6 @@ $page_title = "Profile " . ($role == 'Guru_BK' ? 'Guru BK' : $role);
             transition: background 0.35s ease, color 0.35s ease;
         }
 
-        /* Override for Admin/Guru specific themes if desired */
-        <?php if ($role == 'Admin'): ?>
-            :root {
-                --bg-gradient: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%);
-                --accent: #8b5cf6;
-            }
-
-        <?php elseif ($role == 'Guru_BK'): ?>
-            :root {
-                --bg-gradient: linear-gradient(135deg, #1a365d 0%, #2d3748 50%, #4a5568 100%);
-                --accent: #3182ce;
-            }
-
-        <?php endif; ?>
-
         body.dark-mode {
             --bg-gradient: linear-gradient(135deg, #0f172a 0%, #111827 45%, #1f2937 100%);
             --surface: rgba(17, 24, 39, 0.92);
@@ -311,7 +310,7 @@ $page_title = "Profile " . ($role == 'Guru_BK' ? 'Guru BK' : $role);
             animation: float 4s ease-in-out infinite;
             z-index: 0;
             filter: blur(1px);
-            opacity: 0.7;
+            opacity: 0.5;
         }
 
         .floating:nth-child(1) {
@@ -319,9 +318,9 @@ $page_title = "Profile " . ($role == 'Guru_BK' ? 'Guru BK' : $role);
             height: 150px;
             top: 15%;
             left: 8%;
-            background: radial-gradient(circle, rgba(255, 255, 255, 0.8) 0%, rgba(255, 255, 255, 0.3) 70%);
+            background: radial-gradient(circle, rgba(74, 222, 128, 0.3) 0%, rgba(74, 222, 128, 0.1) 70%);
             animation-delay: 0s;
-            box-shadow: 0 0 40px rgba(255, 255, 255, 0.4);
+            box-shadow: 0 0 40px rgba(74, 222, 128, 0.3);
         }
 
         .floating:nth-child(2) {
@@ -329,9 +328,9 @@ $page_title = "Profile " . ($role == 'Guru_BK' ? 'Guru BK' : $role);
             height: 180px;
             top: 65%;
             right: 7%;
-            background: radial-gradient(circle, rgba(255, 255, 255, 0.7) 0%, rgba(255, 255, 255, 0.2) 70%);
+            background: radial-gradient(circle, rgba(96, 165, 250, 0.3) 0%, rgba(96, 165, 250, 0.1) 70%);
             animation-delay: 1.5s;
-            box-shadow: 0 0 50px rgba(255, 255, 255, 0.3);
+            box-shadow: 0 0 50px rgba(96, 165, 250, 0.3);
         }
 
         .floating:nth-child(3) {
@@ -339,9 +338,9 @@ $page_title = "Profile " . ($role == 'Guru_BK' ? 'Guru BK' : $role);
             height: 200px;
             bottom: 15%;
             left: 35%;
-            background: radial-gradient(circle, rgba(255, 255, 255, 0.6) 0%, rgba(255, 255, 255, 0.25) 70%);
+            background: radial-gradient(circle, rgba(248, 113, 113, 0.3) 0%, rgba(248, 113, 113, 0.1) 70%);
             animation-delay: 3s;
-            box-shadow: 0 0 45px rgba(255, 255, 255, 0.35);
+            box-shadow: 0 0 45px rgba(248, 113, 113, 0.3);
         }
 
         @keyframes float {
@@ -349,22 +348,22 @@ $page_title = "Profile " . ($role == 'Guru_BK' ? 'Guru BK' : $role);
             0%,
             100% {
                 transform: translateY(0px) translateX(0px) rotate(0deg) scale(1);
-                opacity: 0.6;
+                opacity: 0.4;
             }
 
             25% {
                 transform: translateY(-30px) translateX(15px) rotate(90deg) scale(1.05);
-                opacity: 0.8;
+                opacity: 0.6;
             }
 
             50% {
                 transform: translateY(-15px) translateX(-10px) rotate(180deg) scale(1.1);
-                opacity: 0.7;
+                opacity: 0.5;
             }
 
             75% {
                 transform: translateY(-25px) translateX(5px) rotate(270deg) scale(1.05);
-                opacity: 0.9;
+                opacity: 0.7;
             }
         }
 
@@ -391,8 +390,9 @@ $page_title = "Profile " . ($role == 'Guru_BK' ? 'Guru BK' : $role);
         .header {
             margin-left: 270px;
             background: var(--surface);
-            border-bottom: 2px solid var(--accent);
+            border-bottom: 3px solid var(--accent);
             box-shadow: var(--shadow-soft);
+            overflow: visible;
             padding: 20px 40px;
             display: flex;
             justify-content: space-between;
@@ -402,19 +402,39 @@ $page_title = "Profile " . ($role == 'Guru_BK' ? 'Guru BK' : $role);
             transition: margin-left 0.3s ease, background 0.3s ease;
         }
 
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(49, 130, 206, 0.05), transparent);
+            transform: translateX(-100%);
+        }
+
+        .header:hover::before {
+            animation: shimmer 2s;
+        }
+
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
         .brand-left {
             display: flex;
             align-items: center;
             gap: 14px;
         }
 
-        .brand-left a {
+        .brand-left > a {
             text-decoration: none;
             color: inherit;
         }
 
         .header h1 {
-            font-size: 24px;
+            font-size: 28px;
             font-weight: 700;
             background: linear-gradient(135deg, var(--accent), #1d4ed8);
             -webkit-background-clip: text;
@@ -422,8 +442,16 @@ $page_title = "Profile " . ($role == 'Guru_BK' ? 'Guru BK' : $role);
             background-clip: text;
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 10px;
             margin: 0;
+        }
+
+        .header > h1 {
+            display: none;
+        }
+
+        .user-info > span {
+            display: none;
         }
 
         .user-info {
@@ -445,6 +473,7 @@ $page_title = "Profile " . ($role == 'Guru_BK' ? 'Guru BK' : $role);
             cursor: pointer;
             transition: all 0.25s ease;
             font-weight: 600;
+            text-decoration: none;
         }
 
         .theme-toggle {
@@ -452,11 +481,26 @@ $page_title = "Profile " . ($role == 'Guru_BK' ? 'Guru BK' : $role);
             gap: 8px;
         }
 
+        .header .user-info > a.theme-toggle {
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 14px;
+            line-height: 1;
+        }
+
         .sidebar-toggle {
             display: none;
             padding: 0 12px;
             font-size: 22px;
-            width: 46px;
+            min-width: 46px;
+            min-height: 46px;
+            touch-action: manipulation;
+            position: relative;
+            z-index: 1405;
+        }
+
+        .theme-toggle i {
+            font-size: 18px;
         }
 
         body.dark-mode .theme-toggle,
@@ -468,6 +512,10 @@ $page_title = "Profile " . ($role == 'Guru_BK' ? 'Guru BK' : $role);
         .sidebar-toggle:hover {
             border-color: var(--accent);
             color: var(--accent);
+        }
+
+        .theme-toggle:hover {
+            transform: translateY(-1px);
         }
 
         .nav {
@@ -483,9 +531,14 @@ $page_title = "Profile " . ($role == 'Guru_BK' ? 'Guru BK' : $role);
             gap: 10px;
             padding: 16px 18px 18px;
             overflow-y: auto;
+            overflow-x: hidden;
             z-index: 1300;
             backdrop-filter: blur(18px);
             transition: transform 0.3s ease, background 0.3s ease;
+        }
+
+        .nav::-webkit-scrollbar {
+            display: none;
         }
 
         .sidebar-top {
@@ -577,6 +630,52 @@ $page_title = "Profile " . ($role == 'Guru_BK' ? 'Guru BK' : $role);
             border-color: var(--border-soft);
             transform: translateX(4px) scale(0.98);
             background: linear-gradient(135deg, rgba(37, 99, 235, 0.14), rgba(59, 130, 246, 0.14));
+        }
+
+        @media (min-width: 1025px) {
+            .sidebar-top h4 {
+                font-size: 13px !important;
+            }
+
+            .sidebar-icon {
+                font-size: 18px !important;
+            }
+
+            .nav a {
+                padding: 14px 22px !important;
+                font-size: 14px !important;
+                font-weight: 600 !important;
+                line-height: 1.2;
+            }
+        }
+
+        .nav-badge {
+            position: relative;
+        }
+
+        .badge {
+            position: absolute;
+            top: 2px;
+            right: 2px;
+            background: linear-gradient(135deg, #ff6b6b, #ee5a52);
+            color: white;
+            border-radius: 50%;
+            width: 18px;
+            height: 18px;
+            font-size: 10px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: pulse 2s infinite;
+            box-shadow: 0 2px 8px rgba(255, 107, 107, 0.4);
+            border: 2px solid white;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
         }
 
         /* Container & Layout */
@@ -986,25 +1085,33 @@ $page_title = "Profile " . ($role == 'Guru_BK' ? 'Guru BK' : $role);
             <button class="sidebar-toggle" id="sidebarToggle" type="button" aria-label="Buka menu">
                 <i class='bx bx-menu'></i>
             </button>
-            <h1><i class='bx bx-user-circle'></i> <?php echo $page_title; ?></h1>
+            <a href="halaman utama.php">
+                <h1><i class='bx bx-user-circle'></i> <?php echo $page_title; ?></h1>
+            </a>
         </div>
+        <h1>APK BK - <?php echo $page_title; ?></h1>
         <div class="user-info">
             <button class="theme-toggle" id="themeToggle" type="button" aria-label="Ganti mode tema">
                 <i class='bx bx-moon'></i>
                 <span>Mode</span>
             </button>
+            <span>Halo, <strong><?php echo htmlspecialchars($nama_lengkap); ?></strong></span>
+            <a href="logout.php" class="theme-toggle" aria-label="Logout akun">
+                <i class='bx bx-log-out'></i>
+                <span>Logout</span>
+            </a>
         </div>
     </div>
 
     <!-- Sidebar -->
     <div class="nav">
         <div class="sidebar-top">
-            <h4>Menu <?php echo $role; ?></h4>
+            <h4><?php echo $role == 'Guru_BK' ? 'Menu Guru BK' : 'Menu ' . $role; ?></h4>
             <div class="sidebar-icons">
                 <span class="sidebar-icon"><i class='bx bx-home-heart'></i></span>
-                <span class="sidebar-icon"><i class='bx bx-book-open'></i></span>
-                <span class="sidebar-icon"><i class='bx bx-brain'></i></span>
-                <span class="sidebar-icon"><i class='bx bx-calendar-star'></i></span>
+                <span class="sidebar-icon"><i class='bx <?php echo $role == 'Guru_BK' ? 'bx-check-shield' : 'bx-book-open'; ?>'></i></span>
+                <span class="sidebar-icon"><i class='bx <?php echo $role == 'Guru_BK' ? 'bx-calendar-star' : 'bx-brain'; ?>'></i></span>
+                <span class="sidebar-icon"><i class='bx <?php echo $role == 'Guru_BK' ? 'bx-clipboard' : 'bx-calendar-star'; ?>'></i></span>
             </div>
         </div>
 
@@ -1038,6 +1145,30 @@ $page_title = "Profile " . ($role == 'Guru_BK' ? 'Guru BK' : $role);
                 <i class='bx bx-calendar'></i>
                 Jadwal Guru
             </a>
+        <?php elseif ($role == 'Guru_BK'): ?>
+            <a href="approve_konsultasi.php" class="nav-badge">
+                <i class='bx bx-check-shield'></i>
+                Approve Konsultasi
+                <?php if ($jumlah_notif_konsultasi > 0): ?>
+                    <span class="badge"><?php echo $jumlah_notif_konsultasi; ?></span>
+                <?php endif; ?>
+            </a>
+            <a href="sesi_konsultasi.php">
+                <i class='bx bx-conversation'></i>
+                Sesi Konsultasi
+            </a>
+            <a href="kelola_jadwal.php">
+                <i class='bx bx-calendar'></i>
+                Kelola Jadwal
+            </a>
+            <a href="review_form.php">
+                <i class='bx bx-clipboard'></i>
+                Review Form
+            </a>
+            <a href="dokumen/pemanggilan_ortu.php">
+                <i class='bx bx-file'></i>
+                Dokumen
+            </a>
         <?php endif; ?>
 
         <a href="profil.php" class="active">
@@ -1045,10 +1176,6 @@ $page_title = "Profile " . ($role == 'Guru_BK' ? 'Guru BK' : $role);
             Profil
         </a>
 
-        <a href="logout.php" style="margin-top: auto; color: #ef4444;">
-            <i class='bx bx-log-out'></i>
-            Logout
-        </a>
     </div>
     <div class="sidebar-overlay" id="sidebarOverlay"></div>
 
